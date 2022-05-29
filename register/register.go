@@ -8,7 +8,7 @@ import (
 )
 
 func NewRegistrar(ctx context.Context) (*etcd.Registrar, error) {
-	service := config.GetConfig().Member.Name
+	service := config.GetConfig().Mongo.ReplicaName
 
 	instance, err := json.Marshal(config.GetConfig().Member)
 	if err != nil {
@@ -20,7 +20,7 @@ func NewRegistrar(ctx context.Context) (*etcd.Registrar, error) {
 
 	registrar := etcd.NewRegistrar(etcdCli, etcd.Service{
 		Prefix: service,
-		Key:    config.GetConfig().Member.Name,
+		Key:    config.GetConfig().Member.Host,
 		Value:  string(instance),
 	})
 	return registrar, nil

@@ -14,18 +14,20 @@ type Config struct {
 }
 
 type Member struct {
-	Name               string            `env:"NAME" envDefault:"${MEMBER_HOST}" envExpand:"true"`
-	Host               string            `env:"HOST"`
-	ArbiterOnly        bool              `env:"ARBITER_ONLY" envDefault:"false"`
-	BuildIndexes       bool              `env:"BUILD_INDEXES" envDefault:"true"`
-	Hidden             bool              `env:"HIDDEN" envDefault:"false"`
-	Priority           int               `env:"PRIORITY" envDefault:"1"`
-	SecondaryDelaySecs int               `env:"SECONDARY_DELAY_SECS" envDefault:"0"`
-	Votes              int               `env:"VOTES" envDefault:"1"`
-	Tags               map[string]string `envPrefix:"TAGS_"`
+	ID int `bson:"_id" json:"id,omitempty"`
+	//Name               string ` env:"NAME" envDefault:"${MEMBER_HOST}" envExpand:"true" bson:"name"`
+	Host               string `bson:"host" json:"host,omitempty" env:"HOST"`
+	ArbiterOnly        bool   `bson:"arbiterOnly" json:"arbiter_only,omitempty" env:"ARBITER_ONLY" envDefault:"false" `
+	BuildIndexes       bool   `bson:"buildIndexes" json:"build_indexes,omitempty" env:"BUILD_INDEXES" envDefault:"true" `
+	Hidden             bool   `bson:"hidden" json:"hidden,omitempty" env:"HIDDEN" envDefault:"false" `
+	Priority           int    `bson:"priority" json:"priority,omitempty" env:"PRIORITY" envDefault:"1" `
+	SecondaryDelaySecs int    `bson:"secondaryDelaySecs" json:"secondary_delay_secs,omitempty" env:"SECONDARY_DELAY_SECS" envDefault:"0" `
+	Votes              int    `bson:"votes" json:"votes,omitempty" env:"VOTES" envDefault:"1" `
+	//Tags               map[string]string
 }
 
 type Mongo struct {
+	Host        string `env:"HOST" envDefault:"${MEMBER_HOST}" envExpand:"true"`
 	ReplicaName string `env:"REPLICA_NAME" envDefault:"rs"`
 	UserName    string `env:"USER_NAME" envDefault:"root"`
 	Password    string `env:"PASSWORD" envDefault:"example"`

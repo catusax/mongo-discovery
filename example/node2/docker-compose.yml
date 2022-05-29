@@ -1,0 +1,35 @@
+version: '3'
+services:
+  mongo:
+    image: mongo
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+    volumes:
+      - ../keyfile:/data/keys/keyfile
+    # chmod 400 keys/keyfile   chown 999:999 keys/keyfile
+    ports:
+      - "27021:27017"
+    entrypoint:
+      - bash
+      - -c
+      - |
+        chmod 400 /data/keys/keyfile
+        chown 999:999 /data/keys/keyfile
+        exec docker-entrypoint.sh $$@
+    command: "mongod --bind_ip_all --replSet=rs --keyFile=/data/keys/keyfile"
+
+  discovery:
+    image: ghcr.io/catusax/mongo-discovery:latest
+    restart: always
+    environment:
+      CLUSTER_SIZE: "2"
+      DELETE: "true"
+      MEMBER_NAME: node2
+      MEMBER_HOST: 172.28.232.234:27021
+      ETCD_ENDPOINTS: http://172.28.232.235:3379
+      MONGO_HOST: 172.28.232.234:27021
+      MONGO_REPLICA_NAME: rs
+      MONGO_USER_NAME: root
+      MONGO_PASSWORD: example

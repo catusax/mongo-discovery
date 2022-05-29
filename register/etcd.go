@@ -4,6 +4,7 @@ import (
 	"crypto/tls"
 	"fmt"
 	clientv3 "go.etcd.io/etcd/client/v3"
+	"log"
 	"mongo-discovery/config"
 	"sync"
 	"time"
@@ -50,8 +51,9 @@ func GetEtcdClient() *clientv3.Client {
 				TLS:               tlsConfig,
 			})
 		if err != nil {
-			panic(fmt.Errorf("cant connect to etcd: %w", err))
+			panic(fmt.Errorf("cant connect to etcd: %s: %w", config.GetConfig().Etcd.Endpoints, err))
 		}
+		log.Println("connected to etcd")
 	})
 	return etcdClient
 }
