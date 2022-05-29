@@ -52,7 +52,8 @@ func GetConfig() *Config {
 }
 
 func readConfig() { //TODO: impl
-	if err := env.Parse(&c); err != nil {
+	c = &Config{}
+	if err := env.Parse(c); err != nil {
 		fmt.Printf("%+v\n", err)
 	}
 }

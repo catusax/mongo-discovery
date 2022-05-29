@@ -4,6 +4,7 @@
 *.dll
 *.so
 *.dylib
+mongo-discovery
 
 # Test binary, built with `go test -c`
 *.test

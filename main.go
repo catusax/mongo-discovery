@@ -2,7 +2,7 @@ package main
 
 import (
 	"context"
-	"github.com/prometheus/common/log"
+	"log"
 	"mongo-discovery/config"
 	"mongo-discovery/mongo"
 	"mongo-discovery/register"
@@ -19,7 +19,7 @@ func main() {
 		for {
 			members, err := register.GetMembers(registrar)
 			if err != nil {
-				log.Error(err)
+				log.Println(err)
 				time.Sleep(time.Second * 5)
 				return
 			}
@@ -28,7 +28,7 @@ func main() {
 
 				err = mongo.ConfigureMongo(context.TODO(), members)
 				if err != nil {
-					log.Error(err)
+					log.Println(err)
 					return
 				}
 				time.Sleep(time.Second * 10)
