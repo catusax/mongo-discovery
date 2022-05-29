@@ -26,11 +26,17 @@ type EtcdClient struct {
 func GetEtcdClient() *clientv3.Client {
 	etcdOnce.Do(func() {
 		var err error
-		var cert tls.Certificate
 
-		cert, err = tls.LoadX509KeyPair("/certs/client.pem", "/certs/client-key.pem")
-		if err != nil {
-			panic(fmt.Errorf("load cert error : %w", err))
+		var tlsConfig *tls.Config
+
+		if config.GetConfig().Etcd.KeyPath != "" && config.GetConfig().Etcd.CertPath != "" {
+			cert, err := tls.LoadX509KeyPair(config.GetConfig().Etcd.CertPath, config.GetConfig().Etcd.KeyPath)
+			if err != nil {
+				panic(fmt.Errorf("load cert error : %w", err))
+			}
+			tlsConfig = &tls.Config{
+				Certificates: []tls.Certificate{cert},
+			}
 		}
 
 		//var err error
@@ -41,9 +47,7 @@ func GetEtcdClient() *clientv3.Client {
 				DialKeepAliveTime: ttl,
 				Username:          config.GetConfig().Etcd.UserName,
 				Password:          config.GetConfig().Etcd.Password,
-				TLS: &tls.Config{
-					Certificates: []tls.Certificate{cert},
-				},
+				TLS:               tlsConfig,
 			})
 		if err != nil {
 			panic(fmt.Errorf("cant connect to etcd: %w", err))
