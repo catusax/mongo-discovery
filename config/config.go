@@ -6,16 +6,20 @@ import (
 )
 
 type Config struct {
-	Mongo       Mongo  `envPrefix:"MONGO_"`
-	Etcd        Etcd   `envPrefix:"ETCD_"`
-	ClusterSize int    `env:"CLUSTER_SIZE" envDefault:"2"`
-	Delete      bool   `env:"DELETE" envDefault:"false"`
-	Member      Member `envPrefix:"MEMBER_"`
+	Mongo Mongo `envPrefix:"MONGO_"`
+	Etcd  Etcd  `envPrefix:"ETCD_"`
+	// ClusterSize is the minimum member nums required to init replicaSet
+	ClusterSize int `env:"CLUSTER_SIZE" envDefault:"2"`
+	// Delete set true to automatically remove member when its down
+	Delete bool   `env:"DELETE" envDefault:"false"`
+	Member Member `envPrefix:"MEMBER_"`
 }
 
+// Member is mongo replica-configuration member, doc: https://www.mongodb.com/docs/manual/reference/replica-configuration/
 type Member struct {
 	ID int `bson:"_id" json:"id,omitempty"`
 	//Name               string ` env:"NAME" envDefault:"${MEMBER_HOST}" envExpand:"true" bson:"name"`
+	// Host hostname of this member ip:port or dns:port
 	Host               string `bson:"host" json:"host,omitempty" env:"HOST"`
 	ArbiterOnly        bool   `bson:"arbiterOnly" json:"arbiter_only,omitempty" env:"ARBITER_ONLY" envDefault:"false" `
 	BuildIndexes       bool   `bson:"buildIndexes" json:"build_indexes,omitempty" env:"BUILD_INDEXES" envDefault:"true" `
@@ -26,17 +30,21 @@ type Member struct {
 	//Tags               map[string]string
 }
 
+// Mongo config
 type Mongo struct {
-	Host        string `env:"HOST" envDefault:"${MEMBER_HOST}" envExpand:"true"`
+	// Host to init replicaset, ip:port or dns:port. by default, it's set to read MEMBER_HOST
+	Host string `env:"HOST" envDefault:"${MEMBER_HOST}" envExpand:"true"`
+	//ReplicaName name of replicaset
 	ReplicaName string `env:"REPLICA_NAME" envDefault:"rs"`
 	UserName    string `env:"USER_NAME" envDefault:"root"`
 	Password    string `env:"PASSWORD" envDefault:"example"`
-	Params      string `env:"PARAMS"`
+	//uri params for mongodb, eg: w=majority&wtimeoutMS=2000, you can use Params to set certificate
+	Params string `env:"PARAMS"`
 }
 
-//Etcd describe etcd discovery server: https://github.com/etcd-io/discovery.etcd.io
+//Etcd registry
 type Etcd struct {
-	//Endpoints are ETCD Endpoints, env: ETCD_ENDPOINTS ,multiple endpoints can be divided by comma
+	//Endpoints are ETCD Endpoints, env: ETCD_ENDPOINTS ,multiple endpoints can be divided by comma, eg: http://172.28.232.235:3379
 	Endpoints []string `env:"ENDPOINTS"`
 	UserName  string   `env:"USER_NAME"`
 	Password  string   `env:"PASSWORD"`
