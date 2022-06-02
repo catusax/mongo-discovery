@@ -12,10 +12,21 @@ import (
 	"sort"
 )
 
+var (
+	shouldInit = true
+)
+
 func ConfigureMongo(ctx context.Context, members []config.Member) error {
 
-	//connect to current server
-	uri := fmt.Sprintf("mongodb://%s/admin?connect=direct", config.GetConfig().Mongo.Host)
+	var uri string
+
+	if shouldInit {
+		//connect to current server
+		uri = fmt.Sprintf("mongodb://%s/admin?connect=direct", config.GetConfig().Mongo.Host)
+	} else {
+		//connect to replicaSet
+		uri = fmt.Sprintf("mongodb://%s/admin?replicaSet=%s", config.GetConfig().Mongo.Host, config.GetConfig().Mongo.ReplicaName)
+	}
 
 	if config.GetConfig().Mongo.Params != "" {
 		uri = fmt.Sprintf("%s&%s", uri, config.GetConfig().Mongo.Params)
@@ -47,6 +58,7 @@ func ConfigureMongo(ctx context.Context, members []config.Member) error {
 	okValue, _ := rep["ok"].(float64)
 
 	if err != nil || okValue == 0.0 { //do not exist,create rep config
+		shouldInit = false
 		fmt.Println("init replicaset...")
 
 		for i := 0; i < len(members); i++ {
@@ -67,9 +79,8 @@ func ConfigureMongo(ctx context.Context, members []config.Member) error {
 		fmt.Sprintf("%s,%v", bytes, err)
 
 		return nil
-	} //else if err != nil {
-	//	return fmt.Errorf("query replicaset %w", err)
-	//}
+	}
+	shouldInit = false
 
 	repConfig, ok := rep["config"].(bson.M)
 	if !ok {
